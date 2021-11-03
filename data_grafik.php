@@ -8,7 +8,7 @@ if (!isset($_SESSION["login"])) {
 if (isset($_POST["logout"])) {
   logout();
 }
-$datas = query();
+$datas = query("SELECT * FROM nilai_mahasiswa;");
 // var_dump($datas[0]["Nama"]);
 ?>
 
@@ -23,7 +23,7 @@ $datas = query();
   <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-  <title>Document</title>
+  <title>Data Grafik</title>
 </head>
 
 <body>
@@ -35,10 +35,62 @@ $datas = query();
       $("#nav-placeholder").load("navbar.html");
     });
   </script>
+  <div class="mt-3 justify-content-center d-grid gap-2">
+    <form id="form-button">
+
+    </form>
+  </div>
   <!-- <h1><?php echo $datas[0]["Nama"] ?></h1> -->
-  <div class="container">
-    <canvas id="myChart"></canvas>
-    <script>
+  <div class="container mt-4" id="chart-container">
+    <canvas id="my-chart"></canvas>
+  </div>
+  <script>
+    const formButton = document.getElementById("form-button");
+    async function fetchButtons() {
+      const response = await fetch("/datas.php");
+      const datas = await response.json();
+      // console.log(datas);
+      for (let i = 0; i < datas.length; i++) {
+        const button = document.createElement("button");
+        button.id = `button${datas[i].id}`;
+        button.type = "button";
+        button.classList.add("btn");
+        button.classList.add("btn-outline-primary");
+        button.classList.add("me-1");
+        button.classList.add("ms-1");
+        button.innerText = datas[i].nama;
+        button.dataset["id"] = datas[i].id;
+        button.onclick = () => {
+          clickHandler(datas[i].id);
+        }
+        formButton.appendChild(button);
+      }
+    }
+    fetchButtons();
+  </script>
+
+  <script>
+    let activeButton = null;
+    async function clickHandler(id) {
+      const container = document.getElementById("chart-container");
+      let chart = document.getElementById("my-chart");
+      if (activeButton) {
+        activeButton.classList.remove("active");
+      }
+      const button = document.getElementById(`button${id}`);
+      button.classList.add("active");
+      activeButton = button;
+      if (chart) {
+        chart.remove();
+      }
+      chart = document.createElement("canvas");
+      chart.id = "my-chart";
+      container.appendChild(chart);
+      // console.log(id);
+      const response = await fetch(`/datas.php?id=${id}`);
+      const data = await response.json();
+      // console.log(data);
+
       const labels = [
         'Semester 1',
         'Semester 2',
@@ -49,70 +101,40 @@ $datas = query();
         'Semester 7',
         'Semester 8'
       ];
-      const data = {
+      const chartDatas = {
         labels: labels,
         datasets: [{
-          label: '<?php echo $datas[0]["Nama"] ?>',
+          label: data.Nama,
           data: [
-            <?php echo $datas[0]['Sem_1'] ?>,
-            <?php echo $datas[0]['Sem_2'] ?>,
-            <?php echo $datas[0]['Sem_3'] ?>,
-            <?php echo $datas[0]['Sem_4'] ?>,
-            <?php echo $datas[0]['Sem_5'] ?>,
-            <?php echo $datas[0]['Sem_6'] ?>,
-            <?php echo $datas[0]['Sem_7'] ?>,
-            <?php echo $datas[0]['Sem_8'] ?>,
+            data.Sem_1, data.Sem_2,
+            data.Sem_3, data.Sem_4,
+            data.Sem_5, data.Sem_6,
+            data.Sem_7, data.Sem_8
           ],
-          fill: true,
+          fill: false,
           borderColor: 'rgb(75, 192, 192)',
           tension: 0.1
         }]
       };
       const config = {
         type: 'line',
-        data: data,
+        data: chartDatas,
+        options: {
+          scales: {
+            y: {
+              suggestedMin: 0,
+              suggestedMax: 4
+            }
+          }
+        }
       };
-
       const myChart = new Chart(
-        document.getElementById('myChart'),
+        chart,
         config
       );
-    </script>
-  </div>
-  <!-- <div>
-    <canvas id="myChart"></canvas>
-    <script>
-      const labels = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-      ];
-      const data = {
-        labels: labels,
-        datasets: [{
-          label: 'My First dataset',
-          backgroundColor: 'rgb(255, 99, 132)',
-          borderColor: 'rgb(255, 99, 132)',
-          data: [0, 10, 5, 2, 20, 30, 45],
-        }]
-      };
-      const config = {
-        type: 'line',
-        data: data,
-        options: {}
-      };
-      // === include 'setup' then 'config' above ===
+    }
+  </script>
 
-      const myChart = new Chart(
-        document.getElementById('myChart'),
-        config
-      );
-    </script>
-
-  </div> -->
 </body>
 
 </html>

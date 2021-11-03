@@ -8,7 +8,7 @@ if (!isset($_SESSION["login"])) {
 if (isset($_POST["logout"])) {
   logout();
 }
-$datas = query();
+$datas = query("SELECT * FROM nilai_mahasiswa;");
 ?>
 
 <!DOCTYPE html>
@@ -33,8 +33,8 @@ $datas = query();
       $("#nav-placeholder").load("navbar.html");
     });
   </script>
-  <div class="container">
-    <h1>Data Tabel Nilai Mahasiswa</h1>
+  <div class="container mt-3">
+    <h1 class="text-center mb-3">Data Tabel Nilai Mahasiswa</h1>
     <table class="table table-striped">
       <tr>
         <th>No.</th>

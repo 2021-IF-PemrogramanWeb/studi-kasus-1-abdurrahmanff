@@ -2,10 +2,10 @@
 session_start();
 $conn = mysqli_connect("localhost", "root", "", "pweb_case_1");
 
-function query()
+function query($query)
 {
   global $conn;
-  $result = mysqli_query($conn, "SELECT * FROM nilai_mahasiswa;");
+  $result = mysqli_query($conn, "$query");
   $rows = [];
   while ($row = mysqli_fetch_assoc($result)) {
     $rows[] = $row;
