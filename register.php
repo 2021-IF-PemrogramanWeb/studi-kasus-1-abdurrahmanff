@@ -57,6 +57,7 @@ if (isset($_POST['register'])) {
               <input type="password" id="confirm-password" class="form-control" name="confirm-password">
             </div>
 
+            <p>Sudah nganu? login <a href="login.php">disini</a></p>
             <button type="submit" class="btn btn-primary" name="register">Submit</button>
           </form>
         </div>
